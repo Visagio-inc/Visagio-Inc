@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Visagio.app — Face Aesthetics Analyzer</title>
+
+  <!-- Fonts (optional) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Your styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Face detection library -->
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+  <!-- Your app logic -->
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="brand">
+        <img id="brand-logo" src="assets/logo.png" alt="Visagio.app logo"/>
+        <div class="wordmark">Visagio<span class="dot">.</span>app</div>
+        <div class="pill" id="modelStatus"><span class="dot-blue"></span> Loading face models…</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <!-- LEFT: Studio / Upload -->
+      <section class="card">
+        <h2>Studio</h2>
+        <div class="content studio">
+          <div id="dropzone">
+            <div>
+              <div style="font-weight:700; margin-bottom:6px;">Drop a front-facing photo</div>
+              <div style="color:var(--muted); font-size:13px; margin-bottom:10px;">Well-lit, neutral expression, no sunglasses. Or use the demo faces below.</div>
+              <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+                <label class="btn" for="file">Upload</label>
+                <button class="btn outline" id="sample1">Demo 1</button>
+                <button class="btn outline" id="sample2">Demo 2</button>
+                <button class="btn outline" id="clear">Clear</button>
+              </div>
+              <input type="file" id="file" accept="image/*" hidden />
+            </div>
+          </div>
+
+          <div class="stage">
+            <img id="preview" alt="Preview" />
+            <canvas id="overlay" class="overlay"></canvas>
+          </div>
+
+          <div class="meta">
+            <div class="pill"><strong>Detections</strong>: <span id="detectCount">0</span></div>
+            <div class="pill"><strong>Symmetry</strong>: <span id="symVal">–</span></div>
+            <div class="pill"><strong>Evenness</strong>: <span id="skinVal">–</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Results / Tips -->
+      <section class="card">
+        <h2>Result</h2>
+        <div class="content">
+          <div style="display:flex; gap: 16px; align-items:center; flex-wrap: wrap;">
+            <div class="gauge" id="gauge" style="--val: 0">
+              <div class="num" id="scoreNum">—</div>
+            </div>
+            <div style="flex:1; min-width:260px;">
+              <div style="font-weight:700; font-size:18px;">Overall Attractiveness</div>
+              <div style="color:var(--muted); font-size:13px;">Heuristic score from facial symmetry, proportions, feature ratios, and skin evenness. This is a fun approximation — not a diagnosis.</div>
+              <div style="margin-top:12px; display:grid; gap:8px;">
+                <div>
+                  <div class="meta" style="margin-bottom:4px;"><span>Symmetry</span><strong id="symmetryScore">—</strong></div>
+                  <div class="bar"><i id="barSym" style="width:0%"></i></div>
+                </div>
+                <div>
+                  <div class="meta" style="margin-bottom:4px;"><span>Proportions</span><strong id="propScore">—</strong></div>
+                  <div class="bar"><i id="barProp" style="width:0%"></i></div>
+                </div>
+                <div>
+                  <div class="meta" style="margin-bottom:4px;"><span>Features</span><strong id="featScore">—</strong></div>
+                  <div class="bar"><i id="barFeat" style="width:0%"></i></div>
+                </div>
+                <div>
+                  <div class="meta" style="margin-bottom:4px;"><span>Skin Evenness</span><strong id="skinScore">—</strong></div>
+                  <div class="bar"><i id="barSkin" style="width:0%"></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <h3 style="margin:0 0 8px; font-family: 'Playfair Display',serif;">Personalized Tips</h3>
+          <div class="tips" id="tipsList"></div>
+        </div>
+      </section>
+    </div>
+
+    <div style="height:16px"></div>
+
+    <details>
+      <summary>How it works + accuracy notes</summary>
+      <div class="content">
+        <div class="notice">
+          This demo uses <code>face-api.js</code> for landmark detection in the browser. We compute symmetry and several feature ratios (eye spacing, nose width, mouth width, face width/height) and combine them into a 0–100 score. These are heuristic ranges based on common aesthetic rules of thumb, not medical guidance. Lighting, angle and expression can change results substantially. Please be kind to yourself.
+        </div>
+        <ol>
+          <li>Use a straight-on, neutral photo in consistent lighting.</li>
+          <li>We normalize distances by face width to be scale-invariant.</li>
+          <li>Skin evenness is a simple brightness-variance proxy across the face box.</li>
+          <li>Weights: Symmetry 30%, Proportions 30%, Feature ratios 20%, Skin 20%.</li>
+        </ol>
+        <div style="font-size:13px; color:var(--muted);">For production: host the model files under <code>/models</code> (see app.js). All processing stays on-device by default.</div>
+      </div>
+    </details>
+  </main>
+
+  <footer>
+    <div>
+      © <span id="year"></span> Visagio.app — Built with respect for privacy. Nothing is uploaded unless you choose to.
+    </div>
+  </footer>
+</body>
+</html>
